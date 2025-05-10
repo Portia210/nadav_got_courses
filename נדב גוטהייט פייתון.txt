@@ -1,0 +1,47 @@
+what i have learn
+file.seek[0] # when reading python file, it if read few lines, and you read again it'll start from the line it got to
+the json.load(), json.jump() functions are meant to convert python dict to json object vise versa (for example True to true) 
+convert python to json str with json.jumps(), json.loads()
+kaggel website for csvs
+
+df.iloc(row_index) # index-location 
+to iter on the rows in the df use this:
+for index, row in df.iterrows()
+# to filter df according to some condition
+df[df["row_name"] == something] # or any other condition
+df.info() # meta data of the table
+in pandas object = string
+df = read_csv(), df.to_csv() # to read and write csv
+# to create df, first create a list of dictionaries e.g data = [{"name": "jerry", "age": 30}] df = pd.DataFrame(data)
+new_df = df.value_counts("product_category") # count how many different values in column
+
+# OOP
+primitive types: int, float. objects: str, list, dict ext. classes: where the object is defined
+
+# classes languages class, instance (when class initialize), memebers (the vars inside the class), and methods (functions inside the class)
+# members and also methods are attributes of the class, when you try to call a method that is not exist you'll get attribute error
+# to access memebers inside the class we'll need to define a method get_{membername}
+# to change member value we'll define function set_memebername(), we do not changing it directrly like object.member = somthing 
+# get and set are prefix, we'll refer them as סטרים וגטרים
+# the convetion (what people agreeing to do is to do _ before the memeber name, like _name to show that they private), we still can acess it with ClassName.name
+# when adding self as arg to a method, it mean it can use all the attributes of the class
+# when class initialize what happening in the background, there is a constructor (בנאי) that create the new object, init function is the constructor, initializatior
+
+# if class has the same attribute like the super(), when we call class.attribute > it'll refer the child, to refer to the super we can use super().attribute
+
+
+# global variables: if a function change the value of global varible the chanage apply only inside the function
+# enless it use before it use it the statment global
+# when funciton create a var that exist also outside it called "shadowing" function shadow is exist only inside
+
+
+
+# tips
+2. ctrl + click will show where it used
+3. we can view called tree with left click
+
+
+
+שיעור 47, דקה 23, json.dump , not mydict.dump
+Cookie problem in the website > bring me to the while loop lesson to do a test multiple times (maybe i started the test and didn't finish it in one occurence)
+go backward when doing the questions
