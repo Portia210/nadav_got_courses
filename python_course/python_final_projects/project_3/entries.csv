@@ -1,0 +1,6 @@
+class_name,id,name,age,company_name,salary,field_of_study,year_of_study,score_avg
+Employee,100,moshe,50,jfk,30000.0,,,
+Person,101,baby,3,,,,,
+Student,102,jake,30,,,math,2.0,99.0
+Person,104,jason,99,,,,,
+Employee,105,nahman,56,electicity,49999.0,,,

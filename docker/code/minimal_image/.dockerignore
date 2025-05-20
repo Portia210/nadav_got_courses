@@ -1,0 +1,6 @@
+build.sh
+*.sh
+.git
+.gitignore
+__pycache__
+*.pyc

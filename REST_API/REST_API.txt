@@ -1,0 +1,161 @@
+Welcome to the rest API
+when we talk about api , is how to allow 2 devices to comunicate
+priciples:
+REST - representational State Trasfer
+API - Applicatoin programing interface
+Rest - is the method
+
+HTTP - communication protocol
+protocol is a stuctured way how to communicate
+http is exaclty that, but in the internet
+
+how http rest api works:
+there are 4 ways how to get data from server to client
+1. GET - get data from server
+2. POST - send data to server
+3. PUT - update data on server
+4. DELETE - delete data from server
+
+basically cients sends a json to server this translate to http request, then server process the request and send back a response in json format
+
+1) status codes
+
+those are the most common http status codes:
+200 group: means that the request was successful
+200 - ok
+201 - created
+202 - accepted
+204 - no content
+
+300 group: means that the request was successful but it redirected to another url
+301 - moved permanently
+302 - found
+
+400 group: means that the request was not successful, the client made a mistake
+400 - bad request
+401 - unauthorized
+403 - forbidden
+404 - not found
+
+500 group: means that the server has an error, the server made a mistake
+500 - internal server error
+501 - not implemented
+
+100 group: information
+100 - continue
+101 - switching protocols
+
+
+look for tables in the internet for more status codes
+
+2) POSTMAN
+
+postman is a tool that allows you to test your api
+
+3) work with postman
+this is the docker server:
+docker pull nadavgot/flask-rest-api:latest
+to run the server:
+docker run -d -p 5000:5000 nadavgot/flask-rest-api:latest
+to see the server logs, interactive:
+docker logs -f <container_id>
+the api is running on port 5000
+Running on http://127.0.0.1:5000
+to access the api, we can add /students to the url
+
+the project in in postman test_rest_api
+
+
+4) rest API in python
+look in the code folder for REST_API 
+
+
+6) REST API on linux
+curl (c-url)
+connect to ec2 machine
+restart flask server
+
+curl http://localhost:5000/students
+
+אפשר להשתמש POSTMAN כדי לראות איך שולחים בקשה מסויימת בCURL /Bash
+
+to POST request
+curl --location 'http://localhost:5000/students' --header 'Content-Type: application/json' --data '{"name": "Steff", "age": 30}'
+
+# by default data is POST, but we can specify it explicitly also
+curl --location -X POST 'http://localhost:5000/students' --header 'Content-Type: application/json' --data '{"name": "Steff", "age": 30}'
+
+one more Options
+wget <url address> # save it into a file
+
+7) הקמת שרת בFLASK
+באופן דיפולטיבי, השרת מחזיר סטטוס קוד כטאפל עם הJSON
+אפשר לשנות את הקוד שמוחזר בRETURN של הנתיב הרלוונטי
+
+
+
+9) ברוכים הבאים לSWAGGER
+זהו כלי שמאפשר לנו לקבל את כל מה שאנו צריכים כדי לבחון את הAPI שלנו במהירות ובקלות ללא POSTMAN
+יש בעצם קובץ קונפיג, ששם יש את כל ההגדרות איך להגיע לקובץ תקין, ומהקובץ הזה ניתן ליצור שרת בסיסי בפייתון
+
+10) התקנה
+איך מתקינים SWAGGER
+יש כל מיני דרכים להתקין
+אפשר להשתמש בדוקר פשוט
+https://hub.docker.com/r/swaggerapi/swagger-editor/
+ואז להריץ אותו
+
+11) קובץ הגדרת API (YAML)
+אפשר לכתוב קובץ YAML או לחפש אחד מוכן ולטעון אותו לקונטיינר דרך הדפדפן
+ע"י IMPORT AS A file
+באותו רגע שתייבאו את הקובץ , דף הסווגר ישתנה
+אפשר ליצא את זה כשרת flask
+לשים לב לפני שמתקינים את הrequirements שצריך לערוך את זה כי יש שם איזה באג
+REST_API\code\how_to_fix_swagger_requirement.md
+בקובץ הזה יש את התיקון
+לאחר שמעלים את השרת אפשר להיכנס לכתובת 
+<server ip>/ui
+
+14) להחיות את הSWAGGER
+קודם מסתכלים 
+
+16) מה קורה מתחת לקלעים SWAGGER
+MAIN מתחיל את העבודה
+הוא יוצר לנו API שנקרא DEFAULT CONTROLLER
+כרגע הקונטרולר שלנו מחזיק קובץ שנקרא TASK MANAGER
+זאת אומרת MAIN לא מכיר את קובץ הTASK MANAGER
+ההתנהגות הזו לא נהוגה
+
+בדרך כלל יש מה שנקרא DEPENDENCY INJECTION
+זה אומר שMAIN עומד להכיר את TASK MANAGER
+ובאמצעות MAIN גם TASK MANAGER יכיר אותה
+
+17) JSON web token JWT 
+אומרים את זה כמו ג'וט
+הדבר שצריכים לעשות הוא להטמיע את הגוט בSWAGGER
+
+18) הטמעה בYAML
+מעתיקים את הנתיב החדש ואת הסכמה החדשה לתוך הנתיבים
+(לראות שיעור)
+
+19) מיזוג עם השרת הקיים שלנו
+איך נעשה את זה?
+באמצעות כלי שנקרא CODE COMPARE
+
+20) אפשר להעתיק את הטוקן של הJWT לאתר
+jwt.io
+והוא ייתן לנו הרבה אינפורמציה על הטוקנים
+וגם יאפשר לנו לפענח אותו 
+JWT כאשר מפוענח כולל איפורמציה על היוזרניים
+
+
+22) FAST API
+מה שיפה בFASK API שאין צורך ליצור קובץ YAML כדי לגנרט שרת של SWAGGER
+# if we'll enter to the ip adderss, with /docs will get swagger for free
+ראינו בסווגר, שאנחנו יכולים לשתף משתנים מהMAIN לעבר הCONTROLER, שזה נקרא DEPENDENCY INJECTION
+ניתן לבצע את זה גם בFAST API
+לקרוא על:
+DEPENDENCY INJECTION
+ASYNC
+YEILD
+pydantic BaseModel

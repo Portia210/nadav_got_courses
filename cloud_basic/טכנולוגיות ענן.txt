@@ -252,3 +252,197 @@ error, warning
 23) Bash scripting
 echo = python print
 example : echo "hello linux"
+
+
+32) DOCKER 
+דוקר היא טכנולוגיה שמאפשר ליצור מכונה וירטואלית רזה
+דוקר הוא קונטיינר (עיגון)
+
+33) מה זה דוקר
+נגיד שאנחנו צריכים להשתמש במודול מסויים למשל פנדס
+יש רשימת דרישות
+1. python
+2. pip
+3. pandas
+אם אני רוצה שחבר שלי יריץ את הקוד, אני צריך לשלוח לו את רשימת הדרישות
+וזה יכול להסתבך עוד הרבה יותר
+נניח שהתוכנה שלי יכולה לרוץ רק על לינוקס, זה נהיה בעייתי
+דוקר מאפשר לנו לארוז את רשימת הדרישות שלנו במלבן שנקרא דוקר, והוא פשוט יכול להתקין את המלבן הזה ולהשתמש בתוכנה
+וזה בעצם עושה סדר
+אני יכול להגיד לקונטיינר לרוץ עם גירסא מסויימת של לינוקס
+והדוקר יכול לעשות את ההתאמה ולרוץ גם על מערכת הפעלה שונה
+התהליך של להפוך משהו לקונטיינר נקרא קונטינריזציה
+להפוך למכונה וירטואלית ויראוליזציה
+רשימת הדרישות נקראית דפנדסייס
+
+מה ההבדלים בין קונטיינר למכונה וירטואלית
+במכונה ויטואלית בעצם יש: 
+1. חומרה, 
+2. מערכת בפעלה, 
+3. מעליו HYPERVISOR שמחלק אותה לכמה מערכות שונות, 
+4. ובתוך אחת המערכות הללו יושב הקוד שלי וכל רשימת הדרישות וכך הוא יכול לרוץ
+
+במכונה ויטואלית בעצם יש: 
+1. חומרה, 
+2. מערכת הפעלה
+3. מנוע דוקר
+4. הקוד עם הדרישות 
+
+דוקר בעצם צורך פחות משאבים, כי הוא לא צריך לבזבז משאבים להקים מערכת הפעלה שלמה
+
+כשעובדים עם VM הKERNEL הוא מערכת ההפעלה הוירטואלית
+בדוקר קונטיינר, מי שמנהל את הכל הוא מערכת ההפעלה של המחשב המארח
+
+יש פה בעצם של שאלה של ביצועים ביצועים יותר טובים בקונטיינר, לבין הפרדה מלאה בVM
+
+34) התקנת דוקר
+
+35) הקונטיינר הראשון שלי
+אנחנו רציץ קונטיינר ארוז על המחשב שלנו
+האריזה של הדוקר נראת IMAGE
+כאשר זה מותקן זה נקרא CONTAINER
+
+אפשר להוריד IMAGES מוכנים מDOCKER HUB
+
+לראות images
+docker images
+
+למחוק
+docker rmi <imageID>
+
+tAG = version
+to download specific version
+we can scroll add see the version and install them with :
+
+docker ps will show the running dockers
+with -a will show the not running ones
+לא ניתן למחוק IMAGE כאשר הקונטיינר שמשתמש בה רץ
+הקונטיינר רץ בפורט שכתוב ליד בדף הקונטיינרים
+מריצים ללא פורט כך 
+docker run -P -d nginxdemos/hello (-d גורם לכך שהוא רץ ברקע בלי להפריע לנו (detached))
+הקונבציה היא לקבע לו פורט מסויים כך
+docker run -p 8080:80 -d nginxdemos/hello
+שם מוספים כך 
+docker run -p 8080:80 -d --name "my server" nginxdemos/hello
+
+local host - שרת מארח מקומי
+כתובת IP שלו היא
+127.0.0.1
+
+🐳 Docker Image Commands
+Command	Description	Common Options
+docker build .	Build image from Dockerfile in current directory	-t <name:tag> (tag the image)
+docker images	List all images	-a (show all images including intermediate)
+docker rmi <image>	Remove an image	-f (force removal)
+docker pull <image>	Download image from Docker Hub	
+docker push <image>	Upload image to Docker Hub	
+
+🧱 Docker Container Commands
+Command	Description	Common Options
+docker run <image>	Run a container from an image	-d (detached), -it (interactive + terminal), --name <name>, -p <host:container> (port mapping), -v <host:container> (volume)
+docker ps	List running containers	-a (show all containers)
+docker stop <container>	Stop a running container	
+docker start <container>	Start an existing container	
+docker restart <container>	Restart a container	
+docker rm <container>	Remove a container	-f (force stop and remove)
+
+🧭 Other Useful Commands
+Command	Description	Common Options
+docker exec <container> <command>	Run a command inside a running container	-it (interactive shell)
+docker logs <container>	View logs of a container	-f (follow logs), --tail <n> (show last n lines)
+docker network ls	List networks	
+docker volume ls	List volumes	
+`docker inspect <name	id>`	Show detailed info (container/image/network/volume)
+
+38) פורטים
+כתובת IP דוגמא
+127.0.0.1:8080 
+הסוף זה הפורט
+פורטים הם כמו דלת והבניין הוא כתובת הIP 
+הדבר הזה פוגש אותנו בשורה הזו
+app.run(host='127.0.0.1', port=5000)
+הכתובת הזו היא מוסכמה מהו LOCAL HOST
+
+מה זה אומר בהקשר של דוקר
+app.run(host='127.0.0.1', port=5000)
+השורה הזו רצה נפלא כשמריצים את הקוד כרגיל
+כשמריצים את הקוד בתוך קונטיינר, אותה כתובת בעצם רצה בתוך הקונטיינר, שמנוע הדוקר מריץ, 
+יש 2 בעיות, הדוקר עצמו יכול להחליט שהוא נותן כתובת IP אחרת
+כנל הפורט של הדוקר יכול להיות פורט שונה
+
+הדרך לפתור את זה הוא לומר
+app.run(host='0.0.0.0', port=5000)
+כך בעצם הדוקר מקשיב לכל הIP
+לגבי פורט יש דרך לבדוק שאותו פורט יהיה בשימוש
+בDOCKERFILE רושמים EXPOSE <port>
+and later
+docker run -p <computer-port>:<container-port>
+
+42)
+docker restart to restart
+העתקת קבצים מדוקר docker cp
+first
+docker ps, to see the id
+then docker cp <docker-name>:/path <output-path>
+
+to give commands inside the docker
+docker exec <id> <command>
+or
+docer exec (execute) -it (interactive) <id> /bin/bash
+
+to install vi for example 
+apt-get update (to allwow downlaods)
+then
+apt-get install vi
+then we can use vi
+
+ctrl +d , or exit to exit
+43) docker in the cloud
+ctrl + r to search for ssh
+check docker --version if exit
+look for script to install docker on your ec2 machine
+
+this should do
+#!/bin/bash
+
+sudo apt-get update -y
+sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo apt-get update -y
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+run the script on you machine
+chmod +x script.sh
+
+sometimes the script will not run becuase linux has dirrerent setting
+so we need to change in the setting EOL (end of line) conversion to LF (UNIX)
+
+to convert windows script to unix
+dostounix script.sh
+
+
+45)
+to upload image
+docker images
+docker save -o flask_app.tar flask_app
+move the image with scp -i <pem-key> ... to the ec2
+conneect to ec2 with ssh -i ...
+load the image with sudo docker load --input
+see the image with sudo docker images
+the docker run
+
+46) view the container in EC2
+after the container is running
+curl <url with port of the conatiner> (c-url)
+if exactly like we run in the the browser
+
+how to get there with the browser?
+get into aws console, to your instance
+use the public v4url
+copy and go in with your port 
+it shouldn't work because there are ec2 security that will not allow to view it from the outside
+inbound rules
+add there another rule
+custom TCP, with 0.0.0.0 and your port number
+then we should be able to access it

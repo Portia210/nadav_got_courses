@@ -1,0 +1,234 @@
+openapi: 3.0.0
+info:
+  title: Task Management API
+  description: API for managing tasks
+  version: 1.0.0
+servers:
+- url: http://localhost:5050
+  description: API Development
+paths:
+  /login:
+    post:
+      summary: Login to get JWT token
+      operationId: login_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/login_body"
+        required: true
+      responses:
+        "200":
+          description: A JWT token is returned on successful login
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/inline_response_200"
+        "401":
+          description: Unauthorized (invalid credentials)
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+  /tasks:
+    get:
+      summary: Get all tasks
+      description: Retrieve a list of all tasks
+      operationId: get_tasks
+      responses:
+        "200":
+          description: A list of tasks
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  $ref: "#/components/schemas/Task"
+                x-content-type: application/json
+        "401":
+          description: Unuthorized access
+      security: []
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+    post:
+      summary: Create a new task
+      description: Add a new task with title and description
+      operationId: tasks_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewTask"
+        required: true
+      responses:
+        "201":
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unuthorized access
+      security:
+      - BearerAuth: []
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+  /tasks/{task_id}:
+    get:
+      summary: Get a specific task
+      description: Retrieve a specific task by its ID
+      operationId: get_task_by_id
+      parameters:
+      - name: task_id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: A task object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "401":
+          description: Unuthorized access
+        "404":
+          description: Task not found
+      security:
+      - BearerAuth: []
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+    put:
+      summary: Update a task
+      description: Update a specific task by ID
+      operationId: tasks_task_id_put
+      parameters:
+      - name: task_id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewTask"
+        required: true
+      responses:
+        "200":
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "400":
+          description: Bad Request
+        "401":
+          description: Unuthorized access
+        "404":
+          description: Task not found
+      security:
+      - BearerAuth: []
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+    delete:
+      summary: Delete a task
+      description: Delete a specific task by ID
+      operationId: tasks_task_id_delete
+      parameters:
+      - name: task_id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Task deleted successfully
+        "401":
+          description: Unuthorized access
+        "404":
+          description: Task not found
+      security:
+      - BearerAuth: []
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+  /tasks/{task_id}/complete:
+    get:
+      summary: Mark a task as complete
+      description: Mark a specific task as completed
+      operationId: tasks_task_id_complete_get
+      parameters:
+      - name: task_id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Task marked as completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "401":
+          description: Unuthorized access
+        "404":
+          description: Task not found
+      security:
+      - BearerAuth: []
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+components:
+  schemas:
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        completed:
+          type: boolean
+      example:
+        description: This is the content of the task
+        id: 0
+        completed: true
+        title: This is the title of the task
+    NewTask:
+      required:
+      - description
+      - title
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+    login_body:
+      type: object
+      properties:
+        username:
+          type: string
+          example: user
+        password:
+          type: string
+          example: password
+    inline_response_200:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+      example:
+        token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      x-bearerInfoFunc: swagger_server.controllers.authorization_controller.check_BearerAuth
+
