@@ -1,0 +1,355 @@
+0) evolution of cloud
+
+1. Simple server
+2. Server on the cloud (called also "monolithic")
+3. Microservices, the server is not a single unit, but a set of services, the pro in this case is that we can scale the services independently, and the con is that we need to manage more services
+4. Serverless, we don't need to manage the servers, we just need to manage the code, but we get the servers from the cloud provider, on demand (called also as "event-driven" or "on-demand" or "pay-per-use"), this also could be cheaper than the microservices, because we pay only for the resources we use.
+
+
+1) AWS lambda
+lambda is a serverless service that allows us to run code whenever an event occurs
+there is one limit: the code can't be longer than 15 minutes, also the code can't be longer than 50MB
+
+instructions how to create a lambda function:
+AWS console -> compute -> lambda -> create function -> author from scratch -> name: my-first-lambda -> runtime: python 3.9 -> create function
+
+then we need to create a function code:
+def lambda_handler(event, context):
+    return {
+        'statusCode': 200,
+        'body': 'Hello, World!'
+    }
+
+the lambda_handler is the entry point of the function, it is called when the function is invoked
+
+and then we need to create a test event: (trigger)
+then we can deploy the function and test it
+once we test the function, we can see the logs in the cloudwatch
+
+2) API Gateway
+API Gateway is also related to microservices, it is a the part in the architecture that connects the lambda function to the outside world
+
+to create an API Gateway:
+AWS console -> compute -> API Gateway -> create API -> rest API -> create API
+
+we can create all kinds of APIs:
+- REST API
+- HTTP API
+ext...
+lets create a rest API:
+now we need to create methods:
+- GET
+- POST
+- PUT
+- DELETE
+
+when we create a method, we need to specify the integration type:
+- Lambda function
+- HTTP endpoint
+- AWS service
+
+after we create the method, we can see the architecture of the API:
+example:
+client > method request > lamda integration 
+client < method response < lambda integration
+
+we can also craete more paths, under resourses
+
+after we finished, we can deploy
+we need to choose stage, usually it splits the traffic between two stages:
+- dev
+- test
+- prod
+
+we can create a stage when we deploy the API
+
+now we can go to the lambda function and see the GET method under configuration
+
+now if we take the trigger url and paste it in the browser (or with curl) we can see the response
+
+3) getaway methods
+
+untill today we used to work with flask, but now we will use with getaway methods
+
+we'll get all the information about the request from event object
+
+example:
+def lambda_handler(event, context):
+    return {
+        'statusCode': 200,
+        'body': 'Hello, World!'
+    }
+
+we can test it with the same curl command
+if it dont work, go to the getaway and make sure that under integration request you have the method settings:
+lambda proxy integration: yes
+dont forget to deploy
+
+to check the logs
+
+i we change the body to json.dumps(event) we can see all the details about the event
+
+some important stuff:
+"httpMethod": "GET"
+"path": "/"
+"body": null # because it's a get request
+
+let's create a new rest api, and a new lambda function, don't forget enable the proxy integration
+
+we can choose under methods "any" and then he'll be able to handle all the methods
+
+now we can play with out lambda function:
+import json
+
+def lambda_handler(event, context):
+    method = event['httpMethod']
+
+    if method == 'GET':
+        return {
+            'statusCode': 200,
+            'body': json.dumps('this is a get request')
+        }
+    
+    elif method in ['POST', 'PUT', 'DELETE']:
+        data = event.get('body', '{}')
+        return {
+            'statusCode': 200,
+            'body': json.dumps({
+                'request-type': method,
+                'request-data': json.loads(data)
+            })
+        }
+
+    else:
+        return {
+            'statusCode': 400,
+            'body': json.dumps({
+                'request-type': 'INVALID',
+                'request-data': {}
+            })
+        }
+
+
+now we can test it with curl and see different responses
+
+examples:
+
+curl -X GET https://criy0uc0v2.execute-api.us-east-1.amazonaws.com/dev/
+
+
+curl -X POST https://criy0uc0v2.execute-api.us-east-1.amazonaws.com/dev \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Hello from curl!"}'
+
+4) Calculator Project
+requirements:
+- on home page return "Empty path do not supported"
+- on /calc route, return a json with the required fields to build a simple calculator (2 ints and 1 operator)
+- on zero divivion return "Error: Division by zero"
+- on invalid operator return "Error: Invalid operator"
+- on valid operator, return the result in a json with the equation and the result
+
+
+* don't forget to create the routes in the getway and deploy everything
+
+5) How to protect the api with api key
+
+under all api gateway, we need to create a new api key, then we can copy it
+we can also control there the usage of the api key
+then we go to usage plans, and create a new usage plan
+
+throatting means that we limit the number of requests per second
+burst means the maximum number of requests API Gateway can accept at once in a short burst before rate limiting kicks in.
+
+it means that if the burst is 5 and the rate is 1, the user can make 5 requests per second, but if he makes 6, the 6th will be rejected
+
+after we create the usage plan, we need to go to the api key and assign it to the usage plan:
+go to the api key and just assign it
+
+we also need to connect the api key to the getaway, and also the usage plan to the getaway:
+API Gateway > Usage plans > first_user_plan > Associate stage
+
+we also need to go to the specific route and assign the api key to it:
+API Gateway > Routes > /calc > Method Request > API Key Required (check)
+
+now if we try to call the api without the api key, we'll get "message": "Forbidden"
+now we can specify the api key in the header:
+hp@DESKTOP-QJ6Q4I3 MINGW64 C:/Users/hp/AppData/Local/Programs/cursor (master)
+curl -X POST "https://criy0uc0v2.execute-api.us-east-1.amazonaws.com/dev/calc" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: <api-key>" \
+  -d '{"number1": 4, "number2": 3, "operator": "+"}'
+4 + 3 = 7(venv) 
+
+
+6) logs in AWS lambda
+lambda > functions > calc_lambda > monitor > view cloudwatch logs
+if we want to see the logs in the terminal, we first need to add logging to the lambda function
+
+every time we run the lambda function, we get a new log group
+in the logging we'll see our logs and the logs of the lambda function generated by the system
+
+7) logs in API Gateway
+API Gateway > Stages > dev > logs and tracing > edit > cloudwatch logs 
+
+it won't work automatically, because we need to give permission to the lambda function to write to the cloudwatch logs
+
+the entity that is responsible for the logs is IAM 
+
+to enable the logs, we need first to go to iam (management and security) > roles > create role > aws service. use-case: api gateway (underneath we'll see: Allows API Gateway to push logs to CloudWatch Logs.)
+
+then we'll see the permissions that the role has
+finally we need to give it a name and click next
+
+after that we need to go to the API Gateway > settings > edit logging settings > copy the ARN from the new role and paste it there
+
+now we need to go to the API Gateway and enable the logs, like we saw before
+
+after we did all that we can see the logs in the cloudwatch > logs > log groups > /aws/apigateway/stage-name
+
+
+
+8) S3 (Simple Storage Service)
+
+S3 is a service that allows us to store objects (files) in the cloud
+
+to create a bucket:
+AWS console > storage > S3 > create bucket > give it a unique name > create
+
+pay attention to the region, it's important, it you change it later, it could be a problem
+
+now we can go to the bucket and see the objects
+
+to upload a file:
+AWS console > storage > S3 > bucket name > upload > add files > upload
+
+to control the access to the bucket, we need to go to the bucket > permissions > block public access > edit > uncheck the block public access > allow public access to this bucket
+
+then go to bucket > permissions > bucket policy > policy generator > select the following actions:
+type of policy: S3
+actions: GetObject (get the file)
+resources: ARN of the bucket
+
+then we can copy the policy and paste it in the bucket policy
+
+*pay attention, sometimes we'll need to add to Resource at the end /* (to select all), or /<arn-of-object> (to select a specific object)
+
+after we added the policy, we can test the access to the file, on incognito mode, simply copy the url of the object and paste it
+
+9) IAM (Identity and Access Management)
+role- is a group of permissions that are used to control the access to the resources (it's like a user, but for the resources)
+policy- is a set of permissions that are used to control the access to the resources
+    principle- is a user, group, or role that the policy is being applied to
+    action- is the action that is being performed on the resource
+
+if you go to inside the lambda to configure the role, you'll see the role that is being used
+
+click on the link under the role name, and you'll see the policy that is being used
+
+now we can add a new policy to the role, for example: we'll add a policy to the role that allows us to read and write to the S3 bucket
+click on add premissions >  attach existing policies (built in policies) > select the following actions:
+type of policy: search s3 and select AmazonS3FullAccess, then click on attach policy
+
+we can also create inline policy, for example: we'll create a policy that allows us to read and write to the S3 bucket
+
+10) lambda with S3
+we going to build lambda function that triggers when a file is uploaded to the S3 bucket
+
+create a lambda function, and in the trigger section, we need to add a new trigger:
+type: S3
+bucket: name of the bucket
+event type: All object create events
+
+after we did that, if we go to the bucket > properties > event notification, we can see the trigger that we just created
+
+now we need to build the lambda function:
+
+import json
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+def lambda_handler(event, context):
+    logger.info("--------------------------------")
+    logger.info(f"Received event: {event}")
+    logger.info("--------------------------------")
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Hello, World!')
+    }
+
+now we need to test the lambda function, we can do that by uploading a file to the S3 bucket
+then go to the logs and see the logs of the lambda function
+you'll see how the event looks like
+
+then we can break the event to understand it better:
+def lambda_handler(event, context):
+    logger.info("--------------------------------")
+    logger.info(f"Received event: {event}")
+    logger.info("--------------------------------")
+
+    bucket_name = event['Records'][0]['s3']['bucket']['name']
+    object_key = event['Records'][0]['s3']['object']['key']
+    object_size = event['Records'][0]['s3']['object']['size']
+
+    logger.info(f"Bucket name: {bucket_name}")
+    logger.info(f"Object key: {object_key}")
+    logger.info(f"Object size: {object_size}")
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Hello, World!')
+    }
+
+potential problem to notice:
+if our lambda function create a function when it's triggered, it'll trigger again and again (recursive trigger)
+
+
+11) lambda with S3 part 2
+we'll use the module boto3 to interact with the S3 bucket
+
+the module is made by amazon, and it's a python library for interacting with the AWS services
+SDK - software development kit, which means that it's a set of tools for developers to use for particular service
+
+we'll use boto3 documentation to do that
+https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-example-creating-buckets.html
+
+if we work on the cloud the module is already installed, on the local machine we need to install it: pip install boto3
+
+if we want to give the lambda premissions, we want to not duplicate role, but simply give it the existing role
+
+btw, it's possible to compress your code from the ide to zip file and upload it to the lambda function
+
+12) lambda with S3 part 3
+
+in this lesson we going to create also files in a bucket
+import json
+import boto3
+import time
+
+s3 = boto3.client('s3')
+
+def lambda_handler(event, context):
+    file_name = f"{time.time()}_my_file.txt"
+
+    s3.put_object(
+        Bucket="bucket-for-testing-portia", 
+        Key=file_name, 
+        Body="This is the content of the file."
+        )
+    currect_response = s3.get_object(
+        Bucket="bucket-for-testing-portia",
+        Key=file_name
+    )['Body'].read().decode('utf-8')
+    return {
+        'statusCode': 200,
+        'body': json.dumps(currect_response)
+    }
+
+if we test the lambda function, we'll see the file in the bucket
+
+13) lambda with getaway and s3
+you have the code in the folder, make it work on the cloud
+
+14) finishing project

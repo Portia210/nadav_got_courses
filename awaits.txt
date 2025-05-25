@@ -1,0 +1,44 @@
+Async Functions in Python (with Example)
+An async function in Python is a function that allows you to pause and resume execution, making it ideal for non-blocking operations like:
+
+HTTP requests
+
+File or database I/O
+
+Waiting for user input
+
+Delays (e.g., sleep)
+
+
+
+Does async/await work like threads?
+Not exactly — they're not threads, but they achieve concurrency.
+
+✅ Similar to threads:
+Multiple tasks appear to run at the same time
+
+You can run long-running operations without blocking others
+
+❌ Different from threads:
+No parallel execution of Python code (due to the GIL in CPython)
+
+All async functions run on a single thread and single event loop
+
+Much lighter and safer than threads — no race conditions, locks, etc.
+
+
+
+What is the GIL?
+Global Interpreter Lock (GIL):
+The GIL is a mutex (or lock) that protects access to Python objects and prevents multiple native threads from executing Python bytecode simultaneously in CPython.
+
+Do Multiple Cores Mean the CPU Can Run Multiple Tasks at Once?
+✅ Yes.
+
+Modern processors have multiple cores, and each core can run one or more tasks at the same time, depending on the architecture.
+
+A core is like a separate CPU inside your main processor.
+
+If you have a 4-core CPU, it can run 4 things in parallel — truly at the same time.
+
+With hyper-threading (logical cores), it may appear to handle more (e.g., 8 threads on 4 cores), but actual parallelism depends on workload.
