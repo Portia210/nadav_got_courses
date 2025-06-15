@@ -1,0 +1,167 @@
+openapi: 3.0.0
+info:
+  title: College API
+  description: API for managing college data including students and courses.
+  version: 1.0.0
+servers:
+- url: http://localhost:5000/college_api
+  description: Server
+tags:
+- name: student
+  description: Controller for handling student-related operations
+paths:
+  /students:
+    get:
+      tags:
+      - student
+      summary: Retrieve all students
+      description: Get a list of all students.
+      operationId: students_get
+      responses:
+        "200":
+          description: A list of students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Student'
+                x-content-type: application/json
+      x-openapi-router-controller: "swagger_server.controllers.student_controller"
+    post:
+      tags:
+      - student
+      summary: Add a new student
+      description: Add a new student to the in-memory list.
+      operationId: students_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentInput'
+        required: true
+      responses:
+        "201":
+          description: Student added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentResponse'
+      x-openapi-router-controller: swagger_server.controllers.student_controller
+  /students/{id}:
+    x-swagger-router-controller: student_controller  
+    put:
+      tags:
+      - student
+      summary: Update an existing student
+      description: Update details of a student by ID.
+      operationId: students_id_put
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the student to update
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentInput'
+        required: true
+      responses:
+        "200":
+          description: Student updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentResponse'
+        "404":
+          description: Student not found
+      x-openapi-router-controller: "swagger_server.controllers.student_controller"
+    delete:
+      tags:
+      - student
+      summary: Delete a student
+      description: Remove a student by ID.
+      operationId: students_id_delete
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the student to delete
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Student deleted successfully
+        "404":
+          description: Student not found
+      x-openapi-router-controller: "swagger_server.controllers.student_controller"
+components:
+  schemas:
+    Student:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the student
+        name:
+          type: string
+          description: Name of the student
+        age:
+          type: integer
+          description: Age of the student
+        email:
+          type: string
+          description: Email address of the student
+        course:
+          type: string
+          description: Course the student is enrolled in
+      example:
+        name: name
+        course: course
+        id: 0
+        age: 6
+        email: email
+    StudentInput:
+      required:
+      - age
+      - course
+      - email
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the student
+        age:
+          type: integer
+          description: Age of the student
+        email:
+          type: string
+          description: Email address of the student
+        course:
+          type: string
+          description: Course the student is enrolled in
+    StudentResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Success message
+        student:
+          $ref: '#/components/schemas/Student'
+      example:
+        student:
+          name: name
+          course: course
+          id: 0
+          age: 6
+          email: email
+        message: message
+

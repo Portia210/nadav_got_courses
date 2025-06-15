@@ -1,0 +1,79 @@
+30. welcome to kafka
+let's say we have few microservices, and we need to connect them together
+we saw ways they can communicate, for example with REST API
+
+sometime they want to communicate with each other in real time, like a chat app or a notification service (push notifications)
+
+kafka is a message queue that is used to connect microservices together
+
+when the sender send a message, it created a queue, and the receiver will listen to that queue
+
+what is the receiver is busy?
+the message will be stored in the queue, and the receiver will listen to that queue when it's free
+
+we can also have multiple receivers, and define for each message which receiver should get it (so they can have different queues, and split the work)
+
+this idea called "publish/subscribe" or "pub/sub"
+
+there are also competitors of kafka, like mqtt, rabbitmq, and activemq, or amazon sqs
+
+clients that use kafka:
+uber, spotify, netflix and many more
+
+31) kafka architecture
+
+
+topic: is the message queue
+broker: is the server that kafka runs on, the middleman between the sender and the receiver, broker can handle multiple topics
+zookeeper: is a service that kafka uses to store the metadata of the topics, brokers, and partitions
+producer: is the sender of the message
+consumer: is the receiver of the message
+kafka cluster: the entire kafka system, it can have multiple brokers
+
+we'll do everything in a single machine for now, to understand the concepts
+but of course in a real project we'll have multiple machines, could be on different clouds
+
+
+32) introduction to project
+
+ioT = internet of things, the smart devices that we have in our home, like the smart speaker, smart tv, smart fridge, etc.
+all those devices can send data to the cloud
+let's say we have a device that can send the electricity consumption of a device, like a washing machine
+let's call the device that capture the data "PowerMonitorService"
+so we have this:
+power (producer) -> topic (washing machine) -> PowerMonitorService (consumer) 
+the PowerMonitorService could connect to api that send the average of the electricity consumption of the washing machine to the client
+
+
+let's say we have another service exactly the same, but it measures the temperature of the washing machine
+
+and we have 2 more services (electricity and temperature) for another device, like a AC
+
+
+so the architecture will be like this:
+washing machine temp & ac temp -> TempMonitorService
+washing machine power & ac power -> PowerMonitorService
+
+
+33) start the project
+download all the files (in kafka_project folder)
+
+let's say we have the sensor of the washing machine / ac
+it need to know the name of the device, so it can send the data to the correct topic
+also it need the input channels: power and temp
+
+in our project we have a csv file for each input channel
+
+
+34) code continuation
+we're not going to duplicate the code, were going to user the same producer.py for the washing machine and the ac, 
+and they will get what they need as env params
+
+the consumer.py 
+pay attention, the consumer object (KafkaConsumer) is a blocking iterable
+that means, that is you use it in a loop the loop will never end (becuase it's wating for the next message)
+
+
+35) swagger
+we going to create a swagger for the monitor service
+

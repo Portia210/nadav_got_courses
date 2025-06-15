@@ -1,0 +1,239 @@
+1) kubernetes 
+from Greek, and the meaning is "helmsman" or "pilot"
+shortcut is "k8s"
+let's assum that we have 3 containers on a single machine
+every container is a service
+ec2 could be not enough to manage a lot of services
+so we need to use few ec2 instances (replicas)
+but we need a way to manage the amount of requests that each machine can handle
+the service that allow us to manage the amount of requests that each machine can handle called "load balancer"
+don't forget, each ec2 cost money, so if out terrafic we still paying for the ec2 instances
+the solution is to use kubernetes
+kubernetes is a tool that allow us to manage the amount of requests that each machine can handle
+people like to call it "orchestration tool"
+in another words it's a tool for scaling the containers
+
+1. Cluster
+A Kubernetes cluster consists of a control plane (brain) and worker nodes (muscle).
+It runs your containerized applications.
+
+2. Node
+A Node is a virtual or physical machine.
+Two types:
+- Control Plane Node (Master): Manages the cluster.
+- Worker Node: Runs the actual applications (pods).
+
+3. Pod
+The smallest deployable unit in Kubernetes.
+A pod contains one or more containers that share:
+Storage, Network, Configuration
+
+4. Deployment - A Deployment ensures that a certain number of pods are running at all times. 
+It handles rolling updates, rollbacks, and scaling.
+
+5. Service - A Service exposes your app (pod) to the network.
+
+Types:
+- ClusterIP: Internal only
+- NodePort: Opens a port on each node
+- LoadBalancer: Exposes the service externally via cloud LB
+
+more terms:
+"high availability" - means that the service is available 24/7, doesn't matter if one of the ec2 instances is down
+"scalability" - means that the service can handle a lot of requests, and if the traffic is too much, the service can be scaled up (add more ec2 instances)
+"disaster recovery" - means that the service can be recovered from a disaster (if one of the ec2 instances is down, the service can be recovered from the other ec2 instances)
+
+
+16) kubernetes architecture
+we're not going to be kubernetes experts, but we need to know the basics
+the "role" that usully works with kubernetes is "devops"
+
+this is the kubernetes cluster:
+we have a our nodes:
+1st node, 2nd node (inside each node there is Kublet, which is like a service that manage the containers on the node)
+they connect to Api server in kubernetes control plane
+this connect to few more components like:
+schudeler, controller manager, etcd
+
+
+17) EKS (Elastic Kubernetes Service)
+EKS is a managed kubernetes service by AWS
+we going to use few tools:
+aws cli
+eksctl (eks-ctl)
+kubectl (kub-ctl)
+
+
+18) aws cli
+check:
+aws --version
+then:
+aws configure
+then go to aws iam and create a user with programmatic access
+get inside the user and create access key, and download the csv file
+then enter those details in the terminal:
+
+$ aws configure
+AWS Access Key ID [None]: <your access key id>
+AWS Secret Access Key [None]: <your secret access key>
+Default region name [None]: <select one of the regions>
+Default output format [None]: json
+
+to check if the aws cli is working:
+$ aws sts get-caller-identity
+
+if you have a problem, configure the aws cli again:
+$ aws configure
+
+
+19) eksctl
+elastic kubernetes service control tool
+
+we go to the official website and download it
+
+we'll need to change windows environment variables, so it'll know where to find the eksctl (path)
+
+
+start -> type "edit the system environment variables" -> environment variables -> path -> edit -> new -> paste the path of the ***eksctl folder*** (not the eksctl.exe file)
+
+20) kubectl
+this is the command line tool for kubernetes
+
+download it from the official website
+https://kubernetes.io/docs/tasks/tools/install-kubectl-windows/
+
+
+
+21) cost
+aks cost 10 cents per hour, which is 73 dollars per month
+check out the aws pricing page for more details
+
+22) My first cluster
+we need to create python code
+we need a python code in a docker, which is stored in ECR (Elastic Container Registry, of aws)
+to config all of this we need:
+a <name>.yaml file
+Clusterconfig
+Deployment (define the pod)
+Service (define the service), we need this so we can access the pod from the outside
+
+23) Delete the previous EC2 (so we don't have to pay for it)
+
+https://us-east-1.console.aws.amazon.com/ec2/home?region=us-east-1#Instances:instanceState=running
+go to actions state > terminate instances
+
+SECRET TRICK:
+if you add . in your gmail, it allways get to the same mail, so you can open multiple accounts with dots in the email
+
+we'll use t2.micro, which is free tier
+
+24) cluster config file
+
+few types of config files:
+yaml
+json
+xml
+
+we need to load the config file to the eksctl
+
+$ eksctl create cluster -f <name>.yaml
+if not authorized
+go to aws iam and grant the user the permission to what you see in the terminal (DescribeClusterVersions)
+add inline policy > EKS > DescribeClusterVersions
+
+i needed to add also
+ec2:DescribeInstanceTypeOfferings
+CloudFormation:CreateStack
+
+don't forget to add all the permissions, from the first cluster folder
+add all the permissions, from the first cluster folder
+
+things that can help with failures:
+1. go to ec2 > elastic ip > release elastic ip, then:
+2. go to vpc > your vpc > delete vpc
+3. cloudformation > delete stack
+
+maybe you need to delete the first cluster so you can create a new one
+eksctl delete cluster --name <name>
+or go to the console and delete the cluster from there
+instructions:
+1. go to eks > clusters > your cluster > delete cluster
+
+
+25) deployment.yaml
+some important parts:
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-app-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: flask-app
+  containers:
+    - name: flask-app
+      image: 123456789012.dkr.ecr.us-east-1.amazonaws.com/flask-app:latest
+
+after you have it run this command:
+$ kubectl apply -f deployment.yaml
+
+to check if the deployment is working:
+$ kubectl get deployments
+
+to check the pods:
+$ kubectl get pods
+
+to check the services:
+$ kubectl get services
+
+
+26) service.yaml
+the purpose of the service is to expose the deployment to the outside world
+
+usually load balancer is used, but we'll use node port, because we don't have a load balancer in the free tier
+
+some important parts:
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-app-service
+  
+
+to run the service:
+$ kubectl apply -f service.yaml
+
+to check the service:
+$ kubectl get services
+
+
+27) how to access your pods
+
+first you need to allow the traffic to the node port
+
+first go to aws > ec2 > your instances > click on the instance > security  > click on link to security group > edit inbound rules > add rule > type: custom TCP > port range: {same port as the service.yaml} > source: 0.0.0.0/0 > save
+
+then to access the pods you need to get the public ip of the node
+
+$ kubectl get nodes
+
+then go to the instance and copy the public ip
+
+then go to your browser and type:
+http://{public-ip}:{port}
+
+
+28) see logs
+
+29) delete the cluster
+
+first see the cluster:
+$ eksctl get cluster
+
+then delete the cluster:
+$ eksctl delete cluster --name <name> --region <region>
+
+
+
+
+
