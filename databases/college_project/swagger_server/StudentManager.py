@@ -1,6 +1,7 @@
 from swagger_server.models.student import Student 
 from sqlalchemy import create_engine, text
 import Config
+from typing import Union, List, Tuple
 
 
 class StudentManager:
@@ -35,7 +36,7 @@ class StudentManager:
     def getStudentById(self, student_id: int) -> tuple[Student | None, int]:
         """Get a student by their ID.
         Returns:
-            tuple: (Student object or None, status code)
+            tuple[Student | None, int]: A tuple containing the student object (or None if not found) and status code
         """
         query = f"SELECT * FROM {self.table_name} WHERE id = :id"
         results = self._execute_query(query, {'id': student_id})
